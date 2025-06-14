@@ -31,14 +31,42 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
         maxWidth: "600px",
       }}
     >
-      <label
+      {/* Custom Color Picker */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <label
+          htmlFor="colorPicker"
+          style={{ fontWeight: "bold", alignSelf: "center" }}
+        >
+          Custom Color:
+        </label>
+        <input
+          type="color"
+          id="colorPicker"
+          value={selectedColor}
+          onChange={(e) => onColorChange(e.target.value)}
+          style={{
+            width: "50px",
+            height: "40px",
+            border: `3px solid ${selectedColor}`,
+            borderRadius: "2px",
+            cursor: "pointer",
+          }}
+          title="Choose custom color"
+        />
+      </div>
+
+      {/* Separator */}
+      <div
         style={{
-          fontWeight: "bold",
-          alignSelf: "center",
+          width: "2px",
+          height: "40px",
+          backgroundColor: "#ccc",
+          borderRadius: "4px",
         }}
-      >
-        Colors:
-      </label>
+      />
+
+      {/* Predefined Colors */}
+      <label style={{ fontWeight: "bold", alignSelf: "center" }}>Colors:</label>
       {PREDEFINED_COLORS.map((color) => (
         <button
           key={color}
