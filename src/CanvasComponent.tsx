@@ -1,7 +1,10 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const CanvasComponent = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [canvasContext, setCanvasContext] =
+    useState<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -15,12 +18,50 @@ const CanvasComponent = () => {
         ctx.lineCap = "round";
         ctx.strokeStyle = "#000000";
         ctx.lineWidth = 5;
-        // TODO: Remove, currently temporary
-        ctx.fillStyle = "#ffaa00";
-        ctx.fillRect(0, 0, 100, 100);
+        setCanvasContext(ctx);
       }
     }
   }, []);
+
+  const getMouseCoordinates = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return { x: 0, y: 0 };
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
+  const startDrawing = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasContext) return;
+
+    const { x, y } = getMouseCoordinates(event);
+
+    canvasContext.beginPath();
+    canvasContext.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !canvasContext) return;
+
+    const { x, y } = getMouseCoordinates(event);
+
+    canvasContext.lineTo(x, y);
+    canvasContext.stroke(); // draw a line
+  };
+
+  const stopDrawing = () => {
+    if (!canvasContext) return;
+
+    canvasContext.closePath(); // close the current drawing path
+    setIsDrawing(false);
+  };
 
   return (
     <div
@@ -33,11 +74,10 @@ const CanvasComponent = () => {
       <canvas
         ref={canvasRef}
         id="doodleCanvas"
-        // TODO: Implement mouse functionalities
-        // onMouseDown={}
-        // onMouseMove={}
-        // onMouseUp={}
-        // onMouseLeave={}
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
         style={{
           border: "2px solid #333333",
           borderRadius: "8px",
