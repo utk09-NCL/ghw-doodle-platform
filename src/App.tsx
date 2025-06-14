@@ -4,9 +4,14 @@ import ToolbarComponent from "./ToolbarComponent";
 
 const App = () => {
   const [selectedColor, setSelectedColor] = useState("#1e1e1e");
+  const [brushSize, setBrushSize] = useState(5);
 
   const handleColorChange = (color: string) => {
     setSelectedColor(color);
+  };
+
+  const handleBrushSizeChange = (size: number) => {
+    setBrushSize(size);
   };
 
   return (
@@ -24,8 +29,10 @@ const App = () => {
       <ToolbarComponent
         selectedColor={selectedColor}
         onColorChange={handleColorChange}
+        brushSize={brushSize}
+        onBrushSizeChange={handleBrushSizeChange}
       />
-      <CanvasComponent selectedColor={selectedColor} />
+      <CanvasComponent selectedColor={selectedColor} brushSize={brushSize} />
     </main>
   );
 };
