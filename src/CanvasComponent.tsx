@@ -1,7 +1,15 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 
 export type CanvasRef = {
   clearCanvas: () => void;
+  undo: () => void;
+  canUndo: () => boolean;
 };
 
 type CanvasProps = {
@@ -9,18 +17,30 @@ type CanvasProps = {
   brushSize: number;
   isErasing: boolean;
   ref: React.RefObject<CanvasRef | null>;
+  onUpdateUndoState: () => void;
 };
 
 const CanvasComponent = ({
   selectedColor,
   brushSize,
   isErasing,
+  onUpdateUndoState,
   ref,
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
   const [canvasContext, setCanvasContext] =
     useState<CanvasRenderingContext2D | null>(null);
+
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [historyState, setHistoryState] = useState<{
+    history: string[];
+    currentIndex: number;
+  }>({
+    history: [],
+    currentIndex: -1,
+  });
+
+  const maxHistorySize = 20; // Limit history to save
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,6 +58,65 @@ const CanvasComponent = ({
       }
     }
   }, []);
+
+  // Save the initial blank canvas
+  useEffect(() => {
+    if (canvasContext && canvasRef.current) {
+      setTimeout(() => {
+        const imageData = canvasRef.current!.toDataURL();
+        setHistoryState({
+          history: [imageData],
+          currentIndex: 0,
+        });
+      }, 0);
+    }
+  }, [canvasContext]);
+
+  const saveCanvasState = useCallback(() => {
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      const imageData = canvas.toDataURL();
+
+      setHistoryState((prevState) => {
+        const newHistory = prevState.history.slice(
+          0,
+          prevState.currentIndex + 1
+        );
+        // Add a new state
+        newHistory.push(imageData);
+
+        let newIndex = newHistory.length - 1;
+        if (newHistory.length > maxHistorySize) {
+          newHistory.shift();
+          newIndex = newHistory.length - 1;
+        }
+
+        return {
+          history: newHistory,
+          currentIndex: newIndex,
+        };
+      });
+
+      if (onUpdateUndoState) {
+        setTimeout(onUpdateUndoState, 0);
+      }
+    }
+  }, [maxHistorySize, onUpdateUndoState]);
+
+  const restoreCanvasState = useCallback(
+    (imageData: string) => {
+      if (canvasContext && canvasRef.current) {
+        const canvas = canvasRef.current;
+        const img = new Image();
+        img.onload = () => {
+          canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+          canvasContext.drawImage(img, 0, 0);
+        };
+        img.src = imageData;
+      }
+    },
+    [canvasContext]
+  );
 
   useEffect(() => {
     if (canvasContext) {
@@ -60,10 +139,12 @@ const CanvasComponent = ({
     }
 
     const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
 
     return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
     };
   };
 
@@ -89,8 +170,11 @@ const CanvasComponent = ({
   const stopDrawing = () => {
     if (!canvasContext) return;
 
-    canvasContext.closePath(); // close the current drawing path
-    setIsDrawing(false);
+    if (isDrawing) {
+      canvasContext.closePath(); // close the current drawing path
+      setIsDrawing(false);
+      saveCanvasState(); // save canvas state when we stop drawing
+    }
   };
 
   useImperativeHandle(
@@ -104,10 +188,31 @@ const CanvasComponent = ({
             canvasRef.current.width,
             canvasRef.current.height
           );
+          saveCanvasState(); // save the cleared canvas
         }
       },
+      undo: () => {
+        if (historyState.currentIndex > 0) {
+          const prevIndex = historyState.currentIndex - 1;
+          setHistoryState((prev) => ({
+            ...prev,
+            currentIndex: prevIndex,
+          }));
+          restoreCanvasState(historyState.history[prevIndex]);
+          if (onUpdateUndoState) {
+            setTimeout(onUpdateUndoState, 0);
+          }
+        }
+      },
+      canUndo: () => historyState.currentIndex > 0,
     }),
-    [canvasContext]
+    [
+      canvasContext,
+      historyState,
+      onUpdateUndoState,
+      restoreCanvasState,
+      saveCanvasState,
+    ]
   );
 
   return (

@@ -24,6 +24,8 @@ interface ToolbarProps {
   isErasing: boolean;
   onEraserToggle: (erasing: boolean) => void;
   onClearCanvas: () => void;
+  canUndo: boolean;
+  onUndo: () => void;
 }
 
 const ToolbarComponent: React.FC<ToolbarProps> = ({
@@ -34,6 +36,8 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
   isErasing,
   onEraserToggle,
   onClearCanvas,
+  canUndo,
+  onUndo,
 }) => {
   return (
     <div
@@ -210,6 +214,26 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
           title="Clear the entire canvas"
         >
           🗑️ Clear Canvas
+        </button>
+
+        {/* Undo Button */}
+        <button
+          style={{
+            padding: "10px 15px",
+            backgroundColor: canUndo ? "#053cd3" : "#e3e3e3",
+            color: canUndo ? "#fff" : "#6f6f6f",
+            border: canUndo ? "2px solid #0a205c" : "2px solid #6f6f6f",
+            cursor: canUndo ? "pointer" : "not-allowed",
+            opacity: canUndo ? 1 : "0.4",
+            borderRadius: "4px",
+            fontSize: "14px",
+            fontWeight: "bold",
+          }}
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo (Ctrl + Z)"
+        >
+          ↩️ Undo
         </button>
       </div>
     </div>
