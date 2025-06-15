@@ -3,9 +3,14 @@ import React, { useEffect, useRef, useState } from "react";
 type CanvasProps = {
   selectedColor: string;
   brushSize: number;
+  isErasing: boolean;
 };
 
-const CanvasComponent = ({ selectedColor, brushSize }: CanvasProps) => {
+const CanvasComponent = ({
+  selectedColor,
+  brushSize,
+  isErasing,
+}: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [canvasContext, setCanvasContext] =
@@ -30,11 +35,17 @@ const CanvasComponent = ({ selectedColor, brushSize }: CanvasProps) => {
 
   useEffect(() => {
     if (canvasContext) {
+      if (isErasing) {
+        canvasContext.globalCompositeOperation = "destination-out";
+        canvasContext.strokeStyle = "rgba(0, 0, 0, 1)"; // doesn't matter, but easy to read that eraser makes that part transparent
+      } else {
+        canvasContext.globalCompositeOperation = "source-over";
+        canvasContext.strokeStyle = selectedColor; // brush draws in selected color
+      }
       // update the stroke color from default to selected color
-      canvasContext.strokeStyle = selectedColor;
       canvasContext.lineWidth = brushSize;
     }
-  }, [selectedColor, brushSize, canvasContext]);
+  }, [selectedColor, brushSize, isErasing, canvasContext]);
 
   const getMouseCoordinates = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
