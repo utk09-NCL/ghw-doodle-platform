@@ -1,15 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+
+export type CanvasRef = {
+  clearCanvas: () => void;
+};
 
 type CanvasProps = {
   selectedColor: string;
   brushSize: number;
   isErasing: boolean;
+  ref: React.RefObject<CanvasRef | null>;
 };
 
 const CanvasComponent = ({
   selectedColor,
   brushSize,
   isErasing,
+  ref,
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -86,6 +92,23 @@ const CanvasComponent = ({
     canvasContext.closePath(); // close the current drawing path
     setIsDrawing(false);
   };
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      clearCanvas: () => {
+        if (canvasContext && canvasRef.current) {
+          canvasContext.clearRect(
+            0,
+            0,
+            canvasRef.current.width,
+            canvasRef.current.height
+          );
+        }
+      },
+    }),
+    [canvasContext]
+  );
 
   return (
     <div

@@ -23,6 +23,7 @@ interface ToolbarProps {
   onBrushSizeChange: (size: number) => void;
   isErasing: boolean;
   onEraserToggle: (erasing: boolean) => void;
+  onClearCanvas: () => void;
 }
 
 const ToolbarComponent: React.FC<ToolbarProps> = ({
@@ -32,6 +33,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
   onBrushSizeChange,
   isErasing,
   onEraserToggle,
+  onClearCanvas,
 }) => {
   return (
     <div
@@ -165,11 +167,12 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
         }}
       />
 
-      {/* Eraser Tool */}
+      {/* Eraser / Clear Canvas Tool */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <label style={{ fontWeight: "bold", alignSelf: "center" }}>
           Tools:
         </label>
+        {/* Eraser / Brush switch button */}
         <button
           style={{
             padding: "10px 15px",
@@ -189,6 +192,24 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
           }
         >
           {isErasing ? "🧽 Eraser" : "🖌️ Brush"}
+        </button>
+
+        {/* Clear Canvas Button */}
+        <button
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#fff",
+            color: "#333",
+            border: "2px solid #af0202",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "bold",
+          }}
+          onClick={onClearCanvas}
+          title="Clear the entire canvas"
+        >
+          🗑️ Clear Canvas
         </button>
       </div>
     </div>
