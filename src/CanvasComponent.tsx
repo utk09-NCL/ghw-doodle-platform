@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import type { ToolTypes } from "./App";
 
 export type CanvasRef = {
   clearCanvas: () => void;
@@ -17,6 +18,7 @@ type CanvasProps = {
   brushSize: number;
   isErasing: boolean;
   ref: React.RefObject<CanvasRef | null>;
+  currentTool: ToolTypes;
   onUpdateUndoState: () => void;
 };
 
@@ -24,6 +26,7 @@ const CanvasComponent = ({
   selectedColor,
   brushSize,
   isErasing,
+  currentTool,
   onUpdateUndoState,
   ref,
 }: CanvasProps) => {
@@ -39,6 +42,12 @@ const CanvasComponent = ({
     history: [],
     currentIndex: -1,
   });
+  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const [previewCanvas, setPreviewCanvas] = useState<HTMLCanvasElement | null>(
+    null
+  );
 
   const maxHistorySize = 20; // Limit history to save
 
@@ -56,6 +65,12 @@ const CanvasComponent = ({
         ctx.lineWidth = 5; // default stroke width
         setCanvasContext(ctx);
       }
+
+      // Create a preview canvas
+      const preview = document.createElement("canvas");
+      preview.width = canvas.width;
+      preview.height = canvas.height;
+      setPreviewCanvas(preview);
     }
   }, []);
 
@@ -132,6 +147,46 @@ const CanvasComponent = ({
     }
   }, [selectedColor, brushSize, isErasing, canvasContext]);
 
+  const drawLine = (
+    ctx: CanvasRenderingContext2D,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number
+  ) => {
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+  };
+  const drawRectangle = (
+    ctx: CanvasRenderingContext2D,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number
+  ) => {
+    const width = endX - startX;
+    const height = endY - endX;
+    ctx.beginPath();
+    ctx.rect(startX, startY, width, height);
+    ctx.stroke();
+  };
+  const drawCircle = (
+    ctx: CanvasRenderingContext2D,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number
+  ) => {
+    const radius = Math.sqrt(
+      Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+    );
+    ctx.beginPath();
+    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+  };
+
   const getMouseCoordinates = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -153,9 +208,28 @@ const CanvasComponent = ({
 
     const { x, y } = getMouseCoordinates(event);
 
-    canvasContext.beginPath();
-    canvasContext.moveTo(x, y);
-    setIsDrawing(true);
+    if (currentTool === "brush") {
+      canvasContext.beginPath();
+      canvasContext.moveTo(x, y);
+      setIsDrawing(true);
+    } else {
+      setStartPoint({ x, y });
+      setIsDrawing(true);
+      if (canvasRef.current && previewCanvas) {
+        const canvas = canvasRef.current;
+        const currentImageData = canvasContext.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+        const previewCtx = previewCanvas.getContext("2d");
+        if (previewCtx) {
+          previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+          previewCtx.putImageData(currentImageData, 0, 0);
+        }
+      }
+    }
   };
 
   const draw = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -163,15 +237,86 @@ const CanvasComponent = ({
 
     const { x, y } = getMouseCoordinates(event);
 
-    canvasContext.lineTo(x, y);
-    canvasContext.stroke(); // draw a line
+    if (currentTool === "brush") {
+      canvasContext.lineTo(x, y);
+      canvasContext.stroke(); // draw a line
+    } else if (startPoint) {
+      if (!canvasRef.current || !previewCanvas) return;
+
+      const canvas = canvasRef.current;
+      const previewCtx = previewCanvas.getContext("2d");
+      if (!previewCtx) return;
+
+      const originalImageData = previewCtx.getImageData(
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height
+      );
+      canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+      canvasContext.putImageData(originalImageData, 0, 0);
+
+      const originalStrokeStyle = canvasContext.strokeStyle;
+      const originalLineWidth = canvasContext.lineWidth;
+      const originalCompositeOperation = canvasContext.globalCompositeOperation;
+
+      canvasContext.globalAlpha = 0.7;
+
+      switch (currentTool) {
+        case "line":
+          drawLine(canvasContext, startPoint.x, startPoint.y, x, y);
+          break;
+        case "rectangle":
+          drawRectangle(canvasContext, startPoint.x, startPoint.y, x, y);
+          break;
+        case "circle":
+          drawCircle(canvasContext, startPoint.x, startPoint.y, x, y);
+          break;
+      }
+
+      canvasContext.globalAlpha = 1.0;
+      canvasContext.strokeStyle = originalStrokeStyle;
+      canvasContext.lineWidth = originalLineWidth;
+      canvasContext.globalCompositeOperation = originalCompositeOperation;
+    }
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (event?: React.MouseEvent<HTMLCanvasElement>) => {
     if (!canvasContext) return;
 
     if (isDrawing) {
-      canvasContext.closePath(); // close the current drawing path
+      if (currentTool === "brush") {
+        canvasContext.closePath(); // close the current drawing path
+      } else if (startPoint && event) {
+        const { x, y } = getMouseCoordinates(event);
+
+        if (canvasRef.current && previewCanvas) {
+          const canvas = canvasRef.current;
+          const previewCtx = previewCanvas.getContext("2d");
+          if (previewCtx) {
+            const originalImageData = previewCtx.getImageData(
+              0,
+              0,
+              previewCanvas.width,
+              previewCanvas.height
+            );
+            canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+            canvasContext.putImageData(originalImageData, 0, 0);
+          }
+        }
+        switch (currentTool) {
+          case "line":
+            drawLine(canvasContext, startPoint.x, startPoint.y, x, y);
+            break;
+          case "rectangle":
+            drawRectangle(canvasContext, startPoint.x, startPoint.y, x, y);
+            break;
+          case "circle":
+            drawCircle(canvasContext, startPoint.x, startPoint.y, x, y);
+            break;
+        }
+        setStartPoint(null);
+      }
       setIsDrawing(false);
       saveCanvasState(); // save canvas state when we stop drawing
     }

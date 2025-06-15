@@ -2,11 +2,14 @@ import { useRef, useState } from "react";
 import CanvasComponent, { type CanvasRef } from "./CanvasComponent";
 import ToolbarComponent from "./ToolbarComponent";
 
+export type ToolTypes = "brush" | "line" | "rectangle" | "circle";
+
 const App = () => {
   const [selectedColor, setSelectedColor] = useState("#1e1e1e");
   const [brushSize, setBrushSize] = useState(5);
   const [isErasing, setIsErasing] = useState(false);
   const [canUndoState, setCanUndoState] = useState(false);
+  const [currentTool, setCurrentTool] = useState<ToolTypes>("brush");
   const canvasRef = useRef<CanvasRef>(null);
 
   const handleColorChange = (color: string) => {
@@ -19,6 +22,13 @@ const App = () => {
 
   const handleEraserToggle = (erasing: boolean) => {
     setIsErasing(erasing);
+  };
+
+  const handleToolChange = (tool: ToolTypes) => {
+    setCurrentTool(tool);
+    if (tool !== "brush") {
+      setIsErasing(false);
+    }
   };
 
   const handleClearCanvas = () => {
@@ -63,6 +73,8 @@ const App = () => {
         onClearCanvas={handleClearCanvas}
         onUndo={handleUndo}
         canUndo={canUndoState}
+        currentTool={currentTool}
+        onToolChange={handleToolChange}
       />
       <CanvasComponent
         ref={canvasRef}
@@ -70,6 +82,7 @@ const App = () => {
         brushSize={brushSize}
         isErasing={isErasing}
         onUpdateUndoState={handleUpdateUndoState}
+        currentTool={currentTool}
       />
     </main>
   );
