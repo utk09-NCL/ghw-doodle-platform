@@ -1,0 +1,33 @@
+/* Canvas Component Styles */
+
+.canvasContainer {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.canvas {
+  border: 2px solid #333;
+  border-radius: 8px;
+  width: 95vw;
+  height: 90vh;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Cursor styles for different tools */
+.canvas.brushCursor {
+  cursor: crosshair;
+}
+
+.canvas.eraserCursor {
+  cursor: grab;
+}
+
+.canvas.fillCursor {
+  cursor: cell;
+}
+
+.canvas.shapeCursor {
+  cursor: copy;
+}

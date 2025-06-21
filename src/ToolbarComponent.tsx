@@ -1,21 +1,7 @@
-import type React from "react";
-import type { ToolTypes } from "./App";
-
-const PREDEFINED_COLORS = [
-  "#1e1e1e",
-  "#b10909",
-  "#10b310",
-  "#1010c3",
-  "#d0b60a",
-  "#e8e8e8",
-];
-
-const BRUSH_SIZES = [
-  { size: 2, label: "S" },
-  { size: 5, label: "M" },
-  { size: 10, label: "L" },
-  { size: 20, label: "XL" },
-];
+import React from "react";
+import styles from "./ToolbarComponent.module.css";
+import { APP_CONFIG } from "./config/app";
+import type { ToolTypes } from "./types/canvas";
 
 interface ToolbarProps {
   selectedColor: string;
@@ -25,11 +11,16 @@ interface ToolbarProps {
   isErasing: boolean;
   onEraserToggle: (erasing: boolean) => void;
   onClearCanvas: () => void;
-  canUndo: boolean;
   onUndo: () => void;
+  canUndo: boolean;
   currentTool: ToolTypes;
   onToolChange: (tool: ToolTypes) => void;
+  onSaveCanvas: () => void;
 }
+
+const PREDEFINED_COLORS = APP_CONFIG.COLORS.PREDEFINED;
+
+const BRUSH_SIZES = APP_CONFIG.BRUSH_SIZES;
 
 const ToolbarComponent: React.FC<ToolbarProps> = ({
   selectedColor,
@@ -39,300 +30,213 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
   isErasing,
   onEraserToggle,
   onClearCanvas,
-  canUndo,
   onUndo,
+  canUndo,
   currentTool,
   onToolChange,
+  onSaveCanvas,
 }) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "10px",
-        padding: "10px",
-        backgroundColor: "#f5f5f5",
-        borderRadius: "8px",
-        margin: "0 auto",
-        maxWidth: "90vw",
-      }}
-    >
-      {/* Custom Color Picker */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <label
-          htmlFor="colorPicker"
-          style={{ fontWeight: "bold", alignSelf: "center" }}
-        >
-          Custom Color:
-        </label>
-        <input
-          type="color"
-          id="colorPicker"
-          value={selectedColor}
-          onChange={(e) => onColorChange(e.target.value)}
-          style={{
-            width: "50px",
-            height: "40px",
-            border: `3px solid ${selectedColor}`,
-            borderRadius: "2px",
-            cursor: "pointer",
-          }}
-          title="Choose custom color"
-        />
+    <div className={styles.toolbar}>
+      {/* Color Selection */}
+      <div className={styles.colorSection}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <label htmlFor="colorPicker" className={styles.label}>
+            Color:
+          </label>
+          <input
+            type="color"
+            id="colorPicker"
+            value={selectedColor}
+            onChange={(e) => onColorChange(e.target.value)}
+            className={styles.colorPicker}
+            style={{ borderColor: selectedColor }}
+            title="Choose custom color"
+          />
+        </div>
+
+        <div className={styles.colorSwatches}>
+          <span className={styles.label}>Presets:</span>
+          {PREDEFINED_COLORS.map((color) => (
+            <button
+              key={color}
+              className={`${styles.colorSwatch} ${
+                selectedColor === color ? styles.selected : ""
+              }`}
+              style={{ backgroundColor: color }}
+              onClick={() => onColorChange(color)}
+              aria-label={`Select color ${color}`}
+              title={`Select color ${color}`}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Separator */}
-      <div
-        style={{
-          width: "2px",
-          height: "40px",
-          backgroundColor: "#ccc",
-          borderRadius: "4px",
-        }}
-      />
+      {/* Brush Size */}
+      <div className={styles.brushSection}>
+        <label className={styles.label}>Brush Size:</label>
+        <div className={styles.brushSizes}>
+          {BRUSH_SIZES.map(({ size, label }) => (
+            <button
+              key={size}
+              className={`${styles.brushSizeButton} ${
+                brushSize === size ? styles.active : ""
+              }`}
+              onClick={() => onBrushSizeChange(size)}
+              aria-label={`Set brush size to ${label} (${size}px)`}
+              title={`${label} - ${size}px`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-      {/* Predefined Colors */}
-      <label style={{ fontWeight: "bold", alignSelf: "center" }}>Colors:</label>
-      {PREDEFINED_COLORS.map((color) => (
-        <button
-          key={color}
-          title={`Select color ${color}`}
-          aria-label={`Select color ${color}`}
-          onClick={() => onColorChange(color)}
-          style={{
-            width: "40px",
-            height: "40px",
-            backgroundColor: color,
-            borderRadius: "50%",
-            cursor: "pointer",
-            border:
-              selectedColor === color ? "3px solid #6262fc" : "2px solid #ccc",
-          }}
-        />
-      ))}
-
-      {/* Separator */}
-      <div
-        style={{
-          width: "2px",
-          height: "40px",
-          backgroundColor: "#ccc",
-          borderRadius: "4px",
-        }}
-      />
-
-      {/* Predefined Brush Size */}
-      <div style={{ display: "flex", gap: "10px" }}>
-        <label style={{ fontWeight: "bold", alignSelf: "center" }}>
-          Brush / Eraser Size:
-        </label>
-        {BRUSH_SIZES.map(({ size, label }) => (
-          <button
-            key={size}
-            style={{
-              padding: "8px 12px",
-              color: brushSize === size ? "#fff" : "#333",
-              borderRadius: "4px",
-              border: "2px solid #6262fc",
-              backgroundColor: brushSize === size ? "#6262fc" : "#fff",
-            }}
-            onClick={() => onBrushSizeChange(size)}
-            title={`${label} - ${size}px`}
-          >
-            {label}
-          </button>
-        ))}
+        {/* Fine brush size control */}
+        <div className={styles.brushSliderContainer}>
+          <input
+            type="range"
+            min="1"
+            max="20"
+            value={brushSize}
+            onChange={(e) => onBrushSizeChange(parseInt(e.target.value))}
+            className={styles.brushSlider}
+            aria-label="Fine brush size control"
+          />
+          <span className={styles.brushSizeDisplay}>{brushSize}px</span>
+        </div>
       </div>
-
-      {/* Brush Size Slider */}
-      <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-        <input
-          type="range"
-          min="1"
-          max="20"
-          value={brushSize}
-          onChange={(e) => onBrushSizeChange(parseInt(e.target.value))}
-          style={{ width: "100px", cursor: "pointer" }}
-        />
-        <span
-          style={{
-            fontSize: "12px",
-            fontWeight: "bold",
-            minWidth: "30px",
-          }}
-        >
-          {brushSize}px
-        </span>
-      </div>
-
-      {/* Separator */}
-      <div
-        style={{
-          width: "2px",
-          height: "40px",
-          backgroundColor: "#ccc",
-          borderRadius: "4px",
-        }}
-      />
 
       {/* Drawing Tools */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <label style={{ fontWeight: "bold", alignSelf: "center" }}>
-          Tools:
-        </label>
-        {/* Brush button */}
+      <div className={styles.toolsSection}>
+        <label className={styles.label}>Tools:</label>
+        <div className={styles.toolButtons}>
+          <button
+            className={`${styles.brushButton} ${
+              currentTool === "brush" && !isErasing ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("brush");
+              onEraserToggle(false);
+            }}
+            aria-label="Pencil/Brush Tool"
+            title="Draw with brush"
+          >
+            ✏️ Brush
+          </button>
+
+          <button
+            className={`${styles.fillButton} ${
+              currentTool === "fill" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("fill");
+              onEraserToggle(false);
+            }}
+            aria-label="Fill Tool"
+            title="Fill area with color"
+          >
+            🪣 Fill
+          </button>
+
+          <button
+            className={`${styles.eraserButton} ${
+              isErasing ? styles.active : ""
+            }`}
+            onClick={() => onEraserToggle(!isErasing)}
+            aria-label="Eraser Tool"
+            title="Erase drawings"
+          >
+            🧽 Eraser
+          </button>
+        </div>
+      </div>
+
+      {/* Shapes */}
+      <div className={styles.shapesSection}>
+        <label className={styles.label}>Shapes:</label>
+        <div className={styles.toolButtons}>
+          <button
+            className={`${styles.shapeButton} ${
+              currentTool === "line" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("line");
+              onEraserToggle(false);
+            }}
+            aria-label="Line Tool"
+            title="Draw straight lines"
+          >
+            ╱ Line
+          </button>
+          <button
+            className={`${styles.shapeButton} ${
+              currentTool === "rectangle" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("rectangle");
+              onEraserToggle(false);
+            }}
+            aria-label="Rectangle Tool"
+            title="Draw rectangles"
+          >
+            ▭ Rectangle
+          </button>
+          <button
+            className={`${styles.shapeButton} ${
+              currentTool === "circle" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("circle");
+              onEraserToggle(false);
+            }}
+            aria-label="Circle Tool"
+            title="Draw circles"
+          >
+            ○ Circle
+          </button>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className={styles.actionsSection}>
         <button
-          style={{
-            padding: "10px 15px",
-            border: "2px solid #af0202",
-            backgroundColor:
-              currentTool === "brush" && !isErasing ? "#af0202" : "#ccc",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={() => {
-            onToolChange("brush");
-            onEraserToggle(false);
-          }}
-          title="Pencil/Brush tool"
+          className={`${styles.undoButton} ${
+            canUndo ? styles.enabled : styles.disabled
+          }`}
+          onClick={onUndo}
+          disabled={!canUndo}
+          aria-label="Undo last action"
+          title="Undo (Ctrl+Z)"
         >
-          🖌️ Brush
+          ↶ Undo
         </button>
 
-        {/* Eraser button */}
         <button
-          style={{
-            padding: "10px 15px",
-            border: "2px solid #af0202",
-            backgroundColor: isErasing ? "#af0202" : "#ccc",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={() => onEraserToggle(!isErasing)}
-          title="Eraser"
+          className={styles.saveButton}
+          onClick={onSaveCanvas}
+          aria-label="Save Canvas"
+          title="Save canvas as image (Ctrl+S)"
         >
-          🧽 Eraser
+          💾 Save
         </button>
 
-        {/* Line button */}
         <button
-          style={{
-            padding: "10px 15px",
-            border: "2px solid #af0202",
-            backgroundColor:
-              currentTool === "line" && !isErasing ? "#af0202" : "#ccc",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={() => {
-            onToolChange("line");
-            onEraserToggle(false);
-          }}
-          title="Draw straight line"
+          className={styles.clearButton}
+          onClick={onClearCanvas}
+          aria-label="Clear Canvas"
+          title="Clear the entire canvas"
         >
-          Line
-        </button>
-
-        {/* Rectangle button */}
-        <button
-          style={{
-            padding: "10px 15px",
-            border: "2px solid #af0202",
-            backgroundColor:
-              currentTool === "rectangle" && !isErasing ? "#af0202" : "#ccc",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={() => {
-            onToolChange("rectangle");
-            onEraserToggle(false);
-          }}
-          title="Draw rectangle"
-        >
-          Rectangle
-        </button>
-
-        {/* Circle button */}
-        <button
-          style={{
-            padding: "10px 15px",
-            border: "2px solid #af0202",
-            backgroundColor:
-              currentTool === "circle" && !isErasing ? "#af0202" : "#ccc",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={() => {
-            onToolChange("circle");
-            onEraserToggle(false);
-          }}
-        >
-          Circle
+          🗑️ Clear
         </button>
       </div>
 
-      {/* Separator */}
-      <div
-        style={{
-          width: "2px",
-          height: "40px",
-          backgroundColor: "#ccc",
-          borderRadius: "4px",
-        }}
-      />
-
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <label style={{ fontWeight: "bold", alignSelf: "center" }}>
-          Actions:
-        </label>
-        {/* Clear Canvas Button */}
-        <button
-          style={{
-            padding: "10px 15px",
-            backgroundColor: "#fff",
-            color: "#333",
-            border: "2px solid #af0202",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={onClearCanvas}
-          title="Clear the entire canvas"
-        >
-          🗑️ Clear Canvas
-        </button>
-
-        {/* Undo Button */}
-        <button
-          style={{
-            padding: "10px 15px",
-            backgroundColor: canUndo ? "#053cd3" : "#e3e3e3",
-            color: canUndo ? "#fff" : "#6f6f6f",
-            border: canUndo ? "2px solid #0a205c" : "2px solid #6f6f6f",
-            cursor: canUndo ? "pointer" : "not-allowed",
-            opacity: canUndo ? 1 : "0.4",
-            borderRadius: "4px",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-          onClick={onUndo}
-          disabled={!canUndo}
-          title="Undo (Ctrl + Z)"
-        >
-          ↩️ Undo
-        </button>
+      {/* Keyboard Shortcuts */}
+      <div className={styles.helpSection}>
+        <span className={styles.helpLabel}>Shortcuts:</span>
+        <span>Ctrl+Z: Undo</span>
+        <span>Ctrl+S: Save</span>
+        <span>1-4: Tools</span>
+        <span>E: Eraser</span>
       </div>
     </div>
   );
