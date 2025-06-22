@@ -106,18 +106,8 @@ Contributions are welcome! Here are some ways you can help improve the Doodle Pl
 
 #### High Priority
 
-- [ ] **Mobile Touch Support**: Add touch event handlers for mobile devices
-- [ ] **Redo Functionality**: Implement redo after undo operations
-- [ ] **Canvas Resizing**: Allow users to change canvas dimensions
 - [ ] **Performance Optimization**: Optimize for large canvas operations
-
-#### Medium Priority
-
-- [ ] **Additional Shapes**: Add polygon, star, and arrow tools
-- [ ] **Text Tool**: Allow adding text to drawings
-- [ ] **Layer System**: Support for multiple drawing layers
-- [ ] **Grid/Snap**: Optional grid overlay and snap-to-grid functionality
-- [ ] **Export Formats**: Support for JPEG, SVG export formats
+- [ ] **Color Picker**: Implement a color picker for custom colors
 
 #### Low Priority
 
@@ -126,10 +116,7 @@ Contributions are welcome! Here are some ways you can help improve the Doodle Pl
 - [ ] **Drawing Templates**: Pre-made templates and backgrounds
 - [ ] **Collaborative Drawing**: Real-time collaboration features
 - [ ] **Animation Support**: Simple frame-by-frame animation
-
-### 🐞 Bug Reports
-
-- Flood fill sometimes misses pixels on anti-aliased edges
+- [ ] **Accessibility Improvements**: ARIA labels, keyboard navigation
 
 ### Getting Started with Contributing
 
