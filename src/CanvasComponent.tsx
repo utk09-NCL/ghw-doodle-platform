@@ -116,7 +116,7 @@ const CanvasComponent = ({
   };
 
   return (
-    <div className={styles.canvasContainer}>
+    <div className={styles.canvasContainer} data-testid="canvasContainer">
       <canvas
         ref={canvasRef}
         id="doodleCanvas"
@@ -125,6 +125,7 @@ const CanvasComponent = ({
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={() => stopDrawing()}
+        data-testid="doodleCanvas"
       >
         Your browser does not support the HTML5 canvas tag.
       </canvas>

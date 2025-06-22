@@ -37,10 +37,10 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
   onSaveCanvas,
 }) => {
   return (
-    <div className={styles.toolbar}>
+    <div className={styles.toolbar} data-testid="toolbar">
       {/* Color Selection */}
-      <div className={styles.colorSection}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <div className={styles.colorSection} data-testid="colorSection">
+        <div className={styles.colorSwatches}>
           <label htmlFor="colorPicker" className={styles.label}>
             Color:
           </label>
@@ -73,7 +73,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
       </div>
 
       {/* Brush Size */}
-      <div className={styles.brushSection}>
+      <div className={styles.brushSection} data-testid="brushSection">
         <label className={styles.label}>Brush Size:</label>
         <div className={styles.brushSizes}>
           {BRUSH_SIZES.map(({ size, label }) => (
@@ -107,7 +107,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
       </div>
 
       {/* Drawing Tools */}
-      <div className={styles.toolsSection}>
+      <div className={styles.toolsSection} data-testid="toolsSection">
         <label className={styles.label}>Tools:</label>
         <div className={styles.toolButtons}>
           <button
@@ -152,7 +152,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
       </div>
 
       {/* Shapes */}
-      <div className={styles.shapesSection}>
+      <div className={styles.shapesSection} data-testid="shapesSection">
         <label className={styles.label}>Shapes:</label>
         <div className={styles.toolButtons}>
           <button
@@ -198,7 +198,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
       </div>
 
       {/* Actions */}
-      <div className={styles.actionsSection}>
+      <div className={styles.actionsSection} data-testid="actionsSection">
         <button
           className={`${styles.undoButton} ${
             canUndo ? styles.enabled : styles.disabled
@@ -231,11 +231,11 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
       </div>
 
       {/* Keyboard Shortcuts */}
-      <div className={styles.helpSection}>
+      <div className={styles.helpSection} data-testid="keyboardShortcuts">
         <span className={styles.helpLabel}>Shortcuts:</span>
         <span>Ctrl+Z: Undo</span>
         <span>Ctrl+S: Save</span>
-        <span>1-4: Tools</span>
+        <span>1-5: Tools</span>
         <span>E: Eraser</span>
       </div>
     </div>

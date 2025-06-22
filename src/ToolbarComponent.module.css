@@ -27,6 +27,7 @@
 
 .colorSection {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 15px;
   padding: 10px;

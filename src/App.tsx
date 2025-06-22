@@ -96,7 +96,7 @@ function App() {
         handleClearCanvas();
       }
 
-      // Number keys for tools (1-4)
+      // Number keys for tools (1-5)
       if (
         !event.ctrlKey &&
         !event.metaKey &&
