@@ -40,7 +40,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
     <div className={styles.toolbar}>
       {/* Color Selection */}
       <div className={styles.colorSection}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className={styles.colorSwatches}>
           <label htmlFor="colorPicker" className={styles.label}>
             Color:
           </label>
@@ -235,7 +235,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
         <span className={styles.helpLabel}>Shortcuts:</span>
         <span>Ctrl+Z: Undo</span>
         <span>Ctrl+S: Save</span>
-        <span>1-4: Tools</span>
+        <span>1-5: Tools</span>
         <span>E: Eraser</span>
       </div>
     </div>
