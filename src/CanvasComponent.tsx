@@ -98,7 +98,7 @@ const CanvasComponent = ({
         }
       },
       canUndo: () => canUndo,
-      saveAsImage: (filename = "doodle-canvas", imageType = "image/png") => {
+      saveAsImage: (filename = "doodle-canvas", imageType = "png") => {
         if (canvasRef.current) {
           saveAsImage(canvasRef.current, filename, imageType);
         }
