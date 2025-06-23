@@ -138,7 +138,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
             <img
               src="/icons/fill-tool.svg"
               alt="Fill Tool Icon"
-              style={{ width: "1.2rem", height: "1.2rem", marginRight: "6px", verticalAlign: "middle" }}
+              style={{ width: "1rem", height: "1rem", marginRight: "6px", verticalAlign: "middle" }}
             />
              Fill
           </button>
