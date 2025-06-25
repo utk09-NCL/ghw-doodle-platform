@@ -12,6 +12,7 @@ function App() {
   const canvasRef = useRef<CanvasRef>(null);
   const [canUndoState, setCanUndoState] = useState<boolean>(false);
   const [currentTool, setCurrentTool] = useState<ToolTypes>("brush");
+  const [polygonSides, setPolygonSides] = useState<number>(5);
 
   // Handler function to update the selected color
   const handleColorChange = (color: string) => {
@@ -61,6 +62,8 @@ function App() {
       console.log(`Canvas saved as ${filename}`);
     }
   }, []);
+// Handler function to update the number of sides for the polygon tool
+  const handlePolygonSidesChange = (sides: number) => setPolygonSides(sides);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -176,6 +179,8 @@ function App() {
         currentTool={currentTool}
         onToolChange={handleToolChange}
         onSaveCanvas={handleSaveCanvas}
+        polygonSides={polygonSides}
+        onPolygonSidesChange={handlePolygonSidesChange}
       />
       <ErrorBoundary>
         <CanvasComponent
@@ -184,6 +189,7 @@ function App() {
           brushSize={brushSize}
           isErasing={isErasing}
           currentTool={currentTool}
+          polygonSides={polygonSides}
           onUpdateUndoState={updateUndoState}
         />
       </ErrorBoundary>

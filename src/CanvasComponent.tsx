@@ -21,6 +21,7 @@ const CanvasComponent = ({
   isErasing,
   currentTool,
   onUpdateUndoState,
+  polygonSides, //added here 10:37pm
   ref,
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -42,6 +43,7 @@ const CanvasComponent = ({
     isErasing,
     selectedColor,
     saveCanvasState: (canvas: HTMLCanvasElement) => saveCanvasState(canvas),
+    polygonSides,
   });
 
   // Canvas initialization

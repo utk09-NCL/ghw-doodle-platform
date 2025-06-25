@@ -11,6 +11,7 @@ interface UseDrawingProps {
   currentTool: ToolTypes;
   isErasing: boolean;
   selectedColor: string;
+  polygonSides: number;
   saveCanvasState: (canvas: HTMLCanvasElement) => void;
 }
 
@@ -21,6 +22,7 @@ export const useDrawing = ({
   currentTool,
   isErasing,
   selectedColor,
+  polygonSides,
   saveCanvasState,
 }: UseDrawingProps) => {
   const [isDrawing, setIsDrawing] = useState(false);
@@ -115,7 +117,7 @@ export const useDrawing = ({
         // Draw preview shape
         const originalAlpha = canvasContext.globalAlpha;
         canvasContext.globalAlpha = 0.7;
-        drawShape(canvasContext, currentTool, startPoint.x, startPoint.y, x, y);
+        drawShape(canvasContext, currentTool, startPoint.x, startPoint.y, x, y,polygonSides);
         canvasContext.globalAlpha = originalAlpha;
       }
     },
@@ -166,7 +168,8 @@ export const useDrawing = ({
             startPoint.x,
             startPoint.y,
             x,
-            y
+            y,
+            polygonSides
           );
           setStartPoint(null);
         }

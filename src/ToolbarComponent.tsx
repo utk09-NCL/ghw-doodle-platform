@@ -1,7 +1,8 @@
-import React from "react";
+
 import styles from "./ToolbarComponent.module.css";
 import { APP_CONFIG } from "./config/app";
 import type { ToolTypes } from "./types/canvas";
+
 
 interface ToolbarProps {
   selectedColor: string;
@@ -16,7 +17,10 @@ interface ToolbarProps {
   currentTool: ToolTypes;
   onToolChange: (tool: ToolTypes) => void;
   onSaveCanvas: () => void;
+  polygonSides: number;
+  onPolygonSidesChange: (sides: number) => void;
 }
+
 
 const PREDEFINED_COLORS = APP_CONFIG.COLORS.PREDEFINED;
 
@@ -35,6 +39,9 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
   currentTool,
   onToolChange,
   onSaveCanvas,
+  polygonSides,
+  onPolygonSidesChange,
+  
 }) => {
   return (
     <div className={styles.toolbar} data-testid="toolbar">
@@ -193,6 +200,61 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
             title="Draw circles"
           >
             ○ Circle
+          </button>
+          <button                                                             // this is polygon tool
+            className={`${styles.shapeButton} ${
+              currentTool === "polygon" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("polygon");
+              onEraserToggle(false);
+            }}
+            aria-label="Polygon Tool"
+            title="Draw polygon"
+          >
+            🔷 Polygon
+          </button>
+
+          {currentTool === "polygon" && (
+            <div className={styles.polygonSlider}>
+              <label htmlFor="polygonSides" className={styles.sliderLabel}>
+                Sides: {polygonSides}
+              </label>
+              <input
+                type="range"
+                min="3"
+                max="12"
+                value={polygonSides}
+                onChange={(e) => onPolygonSidesChange(Number(e.target.value))}
+                className={styles.sliderInput}
+              />
+            </div>
+          )}
+          <button
+            className={`${styles.shapeButton} ${
+              currentTool === "star" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("star");
+              onEraserToggle(false);
+            }}
+            aria-label="Star Tool"
+            title="Draw star"
+          >
+            ✨ Star
+          </button>
+          <button
+            className={`${styles.shapeButton} ${
+              currentTool === "arrow" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("arrow");
+              onEraserToggle(false);
+            }}
+            aria-label="Arrow Tool"
+            title="Draw arrow"
+          >
+            ➔ Arrow
           </button>
         </div>
       </div>
