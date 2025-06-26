@@ -1,4 +1,3 @@
-
 import styles from "./ToolbarComponent.module.css";
 import { APP_CONFIG } from "./config/app";
 import type { ToolTypes } from "./types/canvas";
@@ -201,35 +200,6 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
           >
             ○ Circle
           </button>
-          <button                                                             // this is polygon tool
-            className={`${styles.shapeButton} ${
-              currentTool === "polygon" ? styles.active : ""
-            }`}
-            onClick={() => {
-              onToolChange("polygon");
-              onEraserToggle(false);
-            }}
-            aria-label="Polygon Tool"
-            title="Draw polygon"
-          >
-            🔷 Polygon
-          </button>
-
-          {currentTool === "polygon" && (
-            <div className={styles.polygonSlider}>
-              <label htmlFor="polygonSides" className={styles.sliderLabel}>
-                Sides: {polygonSides}
-              </label>
-              <input
-                type="range"
-                min="3"
-                max="12"
-                value={polygonSides}
-                onChange={(e) => onPolygonSidesChange(Number(e.target.value))}
-                className={styles.sliderInput}
-              />
-            </div>
-          )}
           <button
             className={`${styles.shapeButton} ${
               currentTool === "star" ? styles.active : ""
@@ -256,6 +226,43 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
           >
             ➔ Arrow
           </button>
+          <button
+            className={`${styles.shapeButton} ${
+              currentTool === "polygon" ? styles.active : ""
+            }`}
+            onClick={() => {
+              onToolChange("polygon");
+              onEraserToggle(false);
+            }}
+            aria-label="Polygon Tool"
+            title="Draw polygon"
+          >
+            🔷 Polygon
+          </button>
+          {currentTool === "polygon" && (
+            <div className={styles.polygonInput}>
+              <label htmlFor="polygonSides" className={styles.sliderLabel}>
+                Sides:
+              </label>
+              <input
+                type="number"
+                id="polygonSides"
+                min="3"
+                max="12"
+                value={polygonSides === 0 ? '' : polygonSides}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (val >= 3 && val <= 12) {
+                    onPolygonSidesChange(val);
+                  } else if (e.target.value === '') {
+                    onPolygonSidesChange(0);
+                  }
+                }}
+                className={styles.inputBox}
+                style={{ width: "50px", marginLeft: "8px" }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

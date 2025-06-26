@@ -1,6 +1,6 @@
 /**
  * Shape drawing utilities for canvas operations
- * Added the requires shapes like polygon,star and arrow tools ---- sameerverma066@
+ 
  */
 
 export const drawLine = (

@@ -21,7 +21,7 @@ const CanvasComponent = ({
   isErasing,
   currentTool,
   onUpdateUndoState,
-  polygonSides, //added here 10:37pm
+  polygonSides, 
   ref,
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
