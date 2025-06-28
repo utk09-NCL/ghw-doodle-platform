@@ -259,7 +259,7 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
                   }
                 }}
                 className={styles.inputBox}
-                style={{ width: "50px", marginLeft: "8px" }}
+                style={{ width: "50px", marginLeft: "8px" , marginTop:"10px" }}
               />
             </div>
           )}
