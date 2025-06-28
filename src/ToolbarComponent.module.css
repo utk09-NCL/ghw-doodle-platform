@@ -323,3 +323,22 @@
   background-color: #dc3545;
   color: #fff;
 }
+/* polygon slider css */
+.polygonSlider {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+}
+
+.sliderLabel {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+  color: #333;
+}
+
+.sliderInput {
+  width: 120px;
+  cursor: pointer;
+}

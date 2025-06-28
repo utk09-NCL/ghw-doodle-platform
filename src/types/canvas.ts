@@ -1,9 +1,10 @@
-export type ToolTypes = "brush" | "line" | "rectangle" | "circle" | "fill";
+export type ToolTypes = "brush" | "line" | "rectangle" | "circle" | "fill" | "polygon" | "star" | "arrow";
 
 export type Point = {
   x: number;
   y: number;
 };
+
 
 export type RGBColor = {
   red: number;
@@ -29,6 +30,7 @@ export type CanvasProps = {
   currentTool: ToolTypes;
   onUpdateUndoState?: () => void;
   ref: React.ForwardedRef<CanvasRef>;
+  polygonSides: number;
 };
 
 export type HistoryState = {
