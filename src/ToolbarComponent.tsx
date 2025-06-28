@@ -141,7 +141,12 @@ const ToolbarComponent: React.FC<ToolbarProps> = ({
             aria-label="Fill Tool"
             title="Fill area with color"
           >
-            🪣 Fill
+            <img
+              src="/icons/fill-tool.svg"
+              alt="Fill Tool Icon"
+              style={{ width: "1rem", height: "1rem", marginRight: "6px", verticalAlign: "middle" }}
+            />
+             Fill
           </button>
 
           <button
